@@ -28,7 +28,7 @@ namespace ConsoleApp
         {
             var argLength = args.Length;
             string[]? source = null;
-            if (args[0] == "all") {
+            if (argLength > 1 && args[0] == "all") {
                source = new string[] {
                     "ImagesSource/anger.jpg",
                     "ImagesSource/contempt.jpg",
@@ -43,7 +43,7 @@ namespace ConsoleApp
                 };
                 return source;
             }
-            else if (argLength > 0 && (args.Any(str => str.IndexOf("--token=") != -1) || args.Any(str => str.IndexOf("--cancellation=") != -1))) 
+            else if (argLength > 1 && (args.Any(str => str.IndexOf("--token=") != -1) || args.Any(str => str.IndexOf("--cancellation=") != -1))) 
             {
                 if (args.Any(str => str.IndexOf("--token=") != -1) && args.Any(str => str.IndexOf("--cancellation=") != -1))
                 {
