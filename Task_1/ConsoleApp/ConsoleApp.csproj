@@ -9,7 +9,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="ModelLib" Version="1.0.0" />
+    <PackageReference Include="tsirleo-onnxEmotions" Version="1.0.0" />
   </ItemGroup>
 
 </Project>
