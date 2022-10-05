@@ -18,18 +18,16 @@ public class EmotionDef
         session = new InferenceSession(memoryStream.ToArray()); 
     }
 
-    public async Task<ConcurrentDictionary<string,double>> ProceessAnImage(byte[] source, CancellationToken ctn)
+    public async Task<ConcurrentDictionary<string,double>> ProcessAnImage(byte[] source, CancellationToken ctn)
     {
             var resultDict = new ConcurrentDictionary<string,double> ();
             var funcMemStream = new MemoryStream(source);
             
-
             if (ctn.IsCancellationRequested) return resultDict;
 
             var image = await Image.LoadAsync<Rgb24>(funcMemStream, ctn);
             image.Mutate(ctx => {
                 ctx.Resize(new Size(64,64));
-            // ctx.Grayscale();
             });
 
             if (ctn.IsCancellationRequested) return resultDict;
