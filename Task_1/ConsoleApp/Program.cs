@@ -9,13 +9,13 @@ namespace ConsoleApp
         static EmotionDef emotionDef = new EmotionDef();
         static readonly object consoleLock = new object();
 
-        static void Main(string[] args)
+        static async Task Main(string[] args)
         {
             string tokenType;
             bool cancellation;
             var source = CreateSourceArr(args);
             InitTokenOptionsString(args, out tokenType, out cancellation);
-            if (source is not null) { Runner(source, tokenType, cancellation); }
+            if (source is not null) { await Runner(source, tokenType, cancellation); }
             else Console.WriteLine("ERROR: Problem with source creating.");
         }
         
@@ -79,17 +79,18 @@ namespace ConsoleApp
             }
         } 
 
-        static async void Runner(string[] source, string tokenType, bool cancellation) 
+        static async Task Runner(string[] source, string tokenType, bool cancellation) 
         {
             CancellationTokenSource cts = new CancellationTokenSource();
             CancellationToken ctn = cts.Token;
-            List<CancellationTokenSource>? ctsList = new List<CancellationTokenSource>(source.Length);
-            List<CancellationToken>? ctnList = new List<CancellationToken>(source.Length);
+            List<CancellationTokenSource> ctsList = new List<CancellationTokenSource>();
+            List<CancellationToken> ctnList = new List<CancellationToken>();
 
             try {
                 if (string.Equals(tokenType, "individual"))
                 {
-                    for (int i = 0; i < source.Length; i++) ctnList[i] = ctsList[i].Token;
+                    for (int i = 0; i < source.Length; i++) ctsList.Add(new CancellationTokenSource());
+                    for (int i = 0; i < source.Length; i++) ctnList.Add(ctsList[i].Token);
                 }
 
                 var sourceList = PreparePath(source);
@@ -109,7 +110,7 @@ namespace ConsoleApp
 
                 if (cancellation) 
                 {
-                    Thread.Sleep(3000);
+                    Thread.Sleep(50);
                     if (string.Equals(tokenType, "individual"))
                     {
                         if (ctsList is not null) 
@@ -125,23 +126,26 @@ namespace ConsoleApp
 
                 await Task.WhenAll(taskArr); 
             }
-            catch(Exception excp)
+            catch(OperationCanceledException excp)
             {
                 Console.WriteLine(excp.Message);
+            }
+            catch(Exception excp)
+            {
+                Console.WriteLine(excp);
             }
         }
 
         static async Task ProcessData(string path, CancellationToken ctn) 
         {
-            var byteSource = await File.ReadAllBytesAsync(path);
+            var byteSource = File.ReadAllBytes(path);
             var resultDict = await emotionDef.ProcessAnImage(byteSource, ctn);
 
             lock (consoleLock) 
             {
-                Console.WriteLine();
+                Console.WriteLine($"-------------------------Another_Task-------------------------");
                 PrintDict(resultDict);
                 Console.WriteLine();
-                Console.WriteLine($"-------------------------Another_Task-------------------------");
             }
         }
 

@@ -12,7 +12,7 @@ public class EmotionDef
     private InferenceSession session;
     public EmotionDef() 
     {
-        using var modelStream = typeof(EmotionDef).Assembly.GetManifestResourceStream("emotion-ferplus-7.onnx");
+        using var modelStream = typeof(EmotionDef).Assembly.GetManifestResourceStream("emofps.onnx");
         using var memoryStream = new MemoryStream();
         if (modelStream is not null) { modelStream.CopyTo(memoryStream); }
         session = new InferenceSession(memoryStream.ToArray()); 
