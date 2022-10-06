@@ -1,20 +1,20 @@
 ### **Для запуска программы:**
-1. Перейти в директорию Task_1/ModelLib:
+**1. Перейти в директорию Task_1/ModelLib:**
 ```
 cd Task_1/ModelLib
 ```
 
-2. Сформировать пакет NuGet:
+**2. Сформировать пакет NuGet:**
 ```
 dotnet pack
 ```
 
-3. Перейти в директорию ConsoleApp:
+**3. Перейти в директорию ConsoleApp:**
 ```
 cd ../ConsoleApp
 ```
 
-4. Запуск приложения:
+**4. Запуск приложения:**
 ```
 dotnet run [files] [options]
 ```
@@ -22,20 +22,18 @@ options:
 ```
 --сancellation
 ```
-Возможные значения: true/false.
-Default: false.
+*Возможные значения: true/false. Default: false.*
 
 ```
 --token
 ```
-Возможные значения: shared/individual. Где "shared" - общий токен, "individual" - отдельный для каждой задачи.
-Default: shared.
+*Возможные значения: shared/individual. Где "shared" - общий токен, "individual" - отдельный для каждой задачи. Default: shared.*
 
-Для обработки всех изображений из пула запустить команду:
+***Для обработки всех изображений из пула запустить команду:***
 ```
 dotnet run all
 ```
-5. Примеры команд:
+**5. Примеры команд:**
 ```
 dotnet run all
 dotnet run anger.jpg
