@@ -6,20 +6,15 @@ namespace ConsoleApp
 {
     class Program 
     {
-        private static EmotionDef emotionDef = new EmotionDef();
-        private static string tokenType = "shared";
-        private static bool cancellation = false;
-        private static bool imgTransformFlag = false;
-        private static CancellationTokenSource? cts;
-        private static CancellationToken ctn;
-        private static List<CancellationTokenSource>? ctsList;
-        private static List<CancellationToken>? ctnList;
-        private static readonly object consoleLock = new object();
+        static EmotionDef emotionDef = new EmotionDef();
+        static readonly object consoleLock = new object();
 
         static void Main(string[] args)
         {
+            string tokenType;
+            bool cancellation;
             var source = CreateSourceArr(args);
-            InitTokenOptionsString(args);
+            InitTokenOptionsString(args, out tokenType, out cancellation);
             if (source is not null) { Runner(source, tokenType, cancellation); }
             else Console.WriteLine("ERROR: Problem with source creating.");
         }
@@ -28,7 +23,7 @@ namespace ConsoleApp
         {
             var argLength = args.Length;
             string[]? source = null;
-            if (argLength > 1 && args[0] == "all") {
+            if (argLength >= 1 && args[0] == "all") {
                source = new string[] {
                     "ImagesSource/anger.jpg",
                     "ImagesSource/contempt.jpg",
@@ -43,7 +38,7 @@ namespace ConsoleApp
                 };
                 return source;
             }
-            else if (argLength > 1 && (args.Any(str => str.IndexOf("--token=") != -1) || args.Any(str => str.IndexOf("--cancellation=") != -1))) 
+            else if (argLength >=2 && (args.Any(str => str.IndexOf("--token=") != -1) || args.Any(str => str.IndexOf("--cancellation=") != -1))) 
             {
                 if (args.Any(str => str.IndexOf("--token=") != -1) && args.Any(str => str.IndexOf("--cancellation=") != -1))
                 {
@@ -62,7 +57,7 @@ namespace ConsoleApp
                 }
                 return source;
             }
-            else if (argLength > 0)
+            else if (argLength >= 1)
             {
                 source = args;
                 return source;
@@ -70,13 +65,15 @@ namespace ConsoleApp
             return source;
         }
 
-        static void InitTokenOptionsString(string[] args)
+        static void InitTokenOptionsString(string[] args, out string tokenType, out bool cancellation)
         {
-            if (args.Any(str => str == "--cancellation=true")) 
+            tokenType = "shared";
+            cancellation = false;
+            if (args.Any(str => str.IndexOf("cancellation=true") != -1)) 
             {
                 cancellation = true; 
             }
-            if (args.Any(str => str == "--token=individual"))
+            if (args.Any(str => str.IndexOf("token=individual") != -1))
             {
                 tokenType = "individual";
             }
@@ -84,56 +81,49 @@ namespace ConsoleApp
 
         static async void Runner(string[] source, string tokenType, bool cancellation) 
         {
+            CancellationTokenSource cts = new CancellationTokenSource();
+            CancellationToken ctn = cts.Token;
+            List<CancellationTokenSource>? ctsList = new List<CancellationTokenSource>(source.Length);
+            List<CancellationToken>? ctnList = new List<CancellationToken>(source.Length);
+
             try {
                 if (string.Equals(tokenType, "individual"))
                 {
-                    ctsList = new List<CancellationTokenSource>(source.Length);
-                    ctnList = new List<CancellationToken>(source.Length);
-
                     for (int i = 0; i < source.Length; i++) ctnList[i] = ctsList[i].Token;
                 }
-                else
+
+                var sourceList = PreparePath(source);
+
+                var taskArr = new Task[source.Length];
+                var tskIndex = 0;
+                foreach (var path in sourceList) 
                 {
-                    cts = new CancellationTokenSource();
-                    ctn = cts.Token;
+                    if (string.Equals(tokenType, "individual") && ctnList is not null)
+                    {
+                        taskArr[tskIndex] = ProcessData(path, ctnList[tskIndex]);
+                    }
+                    else taskArr[tskIndex] = ProcessData(path, ctn);
+                    
+                    tskIndex += 1;
                 }
 
-                var byteSourceList = ImageToBytes(source);
-                if (imgTransformFlag)
+                if (cancellation) 
                 {
-                    var taskArr = new Task[source.Length];
-                    var tskIndex = 0;
-
-                    foreach (var byteSource in byteSourceList) 
+                    Thread.Sleep(3000);
+                    if (string.Equals(tokenType, "individual"))
                     {
-                        if (string.Equals(tokenType, "individual") && ctnList is not null)
+                        if (ctsList is not null) 
                         {
-                            taskArr[tskIndex] = ProcessData(byteSource, ctnList[tskIndex]);
-                        }
-                        else taskArr[tskIndex] = ProcessData(byteSource, ctn);
-                        
-                        tskIndex += 1;
-                    }
-
-                    if (cancellation) 
-                    {
-                        Thread.Sleep(3000);
-                        if (string.Equals(tokenType, "individual"))
-                        {
-                            if (ctsList is not null) 
-                            {
-                                for (int i = 0; i < source.Length; i++) ctsList[i].Cancel();
-                            }
-                        }
-                        else
-                        {
-                            if (cts is not null) cts.Cancel(); 
+                            for (int i = 0; i < source.Length; i++) ctsList[i].Cancel();
                         }
                     }
-
-                    await Task.WhenAll(taskArr);
+                    else
+                    {
+                        if (cts is not null) cts.Cancel(); 
+                    }
                 }
-                else { return; }
+
+                await Task.WhenAll(taskArr); 
             }
             catch(Exception excp)
             {
@@ -141,9 +131,13 @@ namespace ConsoleApp
             }
         }
 
-        static async Task ProcessData(byte[] byteSource, CancellationToken ctn) 
+        static async Task ProcessData(string path, CancellationToken ctn) 
         {
+            Console.WriteLine("0 place");
+            var byteSource = await File.ReadAllBytesAsync(path);
+            Console.WriteLine("1 place");
             var resultDict = await emotionDef.ProcessAnImage(byteSource, ctn);
+            Console.WriteLine("2 place");
 
             lock (consoleLock) 
             {
@@ -162,41 +156,37 @@ namespace ConsoleApp
             }
         }
 
-        static List<byte[]> ImageToBytes(string[] source)
+        static List<string> PreparePath(string[] source)
         {
-            var byteList = new List<byte[]>();
+            var pathList = new List<string>();
             foreach (string image in source)
             {
                 string imagePath;
                 if (CheckISPath(image)){
                     if (File.Exists(image)) {
-                        byteList.Add(File.ReadAllBytes(image)); 
-                        imgTransformFlag = true;
+                        pathList.Add(image);
                     }
                     else {
-                        Console.WriteLine($"ERROR: Specified image source file doesn't exist - {image}!");
-                        return byteList;
+                        throw new Exception($"ERROR: Specified image source file doesn't exist - {image}!");
                     }
                 }
                 else {
                     imagePath = string.Concat("ImagesSource/", image);
                     if (File.Exists(imagePath)) {
-                        byteList.Add(File.ReadAllBytes(imagePath)); 
-                        imgTransformFlag = true;
+                        pathList.Add(imagePath); 
                     }
                     else {
-                        Console.WriteLine($"ERROR: Specified image source file doesn't exist - {imagePath}!");
-                        return byteList;
+                        throw new Exception($"ERROR: Specified image source file doesn't exist - {imagePath}!");
                     }
                 }
                 
             }
-            return byteList;
+            return pathList;
         }
         
         static bool CheckISPath(string str)
         {
-            if (str.StartsWith("ImagesSource/")) { return true; }
+            if (str.IndexOf("ImagesSource/") != -1) { return true; }
             return false;
         }
     }
