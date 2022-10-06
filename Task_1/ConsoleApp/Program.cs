@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using ModelLib;
 using System.Collections.Concurrent;
 
@@ -118,7 +118,7 @@ namespace ConsoleApp
                         }
                     }
                     else
-                    {
+                    {   
                         if (cts is not null) cts.Cancel(); 
                     }
                 }
@@ -133,11 +133,8 @@ namespace ConsoleApp
 
         static async Task ProcessData(string path, CancellationToken ctn) 
         {
-            Console.WriteLine("0 place");
             var byteSource = await File.ReadAllBytesAsync(path);
-            Console.WriteLine("1 place");
             var resultDict = await emotionDef.ProcessAnImage(byteSource, ctn);
-            Console.WriteLine("2 place");
 
             lock (consoleLock) 
             {
