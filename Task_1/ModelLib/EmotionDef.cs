@@ -10,6 +10,7 @@ namespace ModelLib;
 public class EmotionDef
 {
     private InferenceSession session;
+    static Semaphore semaphore = new Semaphore(1, 1);
     public EmotionDef() 
     {
         using var modelStream = typeof(EmotionDef).Assembly.GetManifestResourceStream("emofps.onnx");
@@ -37,9 +38,11 @@ public class EmotionDef
 
             await Task.Factory.StartNew(() =>
             {
+                semaphore.WaitOne();   
                 using IDisposableReadOnlyCollection<DisposableNamedOnnxValue> results = session.Run(inputs);
+                semaphore.Release();
                 emotions = Softmax(results.First(v => v.Name == "Plus692_Output_0").AsEnumerable<float>().ToArray());
-            });
+            }, TaskCreationOptions.LongRunning);
             
             if (ctn.IsCancellationRequested) return resultDict;
 
