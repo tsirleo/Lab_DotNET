@@ -36,12 +36,15 @@ namespace WPFApp
         public EmoType emoType { get; set; } = EmoType.happiness; 
         private static EmotionDef emotionDef = new EmotionDef();
         private CancellationTokenSource cts = new CancellationTokenSource();
+        List<string> pathList = new List<string>();
         private bool cancellationFlag = false;
+        private bool processFlag = false;
         private bool clearFlag = false;
         private double pgbar = 0;
         private double pgbarStep;
 
         public ICommand UploadData { get; private set; }
+        public ICommand ProcessImgs { get; private set; }
         public ICommand Cancellation { get; private set; }
         public ICommand ClearOutputFields { get; private set; }
 
@@ -59,63 +62,10 @@ namespace WPFApp
         {
             InitializeComponent();
             DataContext = this;
-            ImgList.ItemsSource = imgDataCollection;
             UploadData = new RelayCommand(_ => { OnUploadData(this); });
+            ProcessImgs = new RelayCommand(_ => { OnProcessImgs(this); }, CanProcess);
             Cancellation = new RelayCommand(_ => { OnCancellation(this); }, CanCancel);
             ClearOutputFields = new RelayCommand(_ => { OnClearFields(this); }, CanClear);
-        }
-
-        private async void OnUploadData(object sender)
-        {
-            CancellationToken ctn = cts.Token;
-            var dlg = new Ookii.Dialogs.Wpf.VistaFolderBrowserDialog();
-            List<string> pathList = new List<string>();
-
-            infoblock.Text = DateTime.Now + "\n" + "Selecting the target directory.";
-            progressBar = 0.0;
-
-            if (dlg.ShowDialog(this).GetValueOrDefault())
-            {
-                imgDataCollection.Clear();
-                infoblock.Text = DateTime.Now + "\n" + "Data processing has started.";
-
-                foreach (var imagePath in System.IO.Directory.GetFiles(dlg.SelectedPath)) { pathList.Add(imagePath); }
-                pgbarStep = 100.0 / pathList.Count();
-                ProgressBar.Foreground = Brushes.Lime;
-
-                try
-                {
-                    cancellationFlag = true;
-                    foreach (var path in pathList)
-                    {
-                        await ProcessData(path, ctn);
-                        progressBar += pgbarStep;
-                    }
-
-                    if (pathList.Count == imgDataCollection.Count)
-                    {
-                        cancellationFlag = false;
-                        clearFlag = true;
-                        infoblock.Text = DateTime.Now + "\n" + "Data processing is complete.";
-                        //SortByEmotion();
-                    }
-                }
-                catch (OperationCanceledException)
-                {
-                    infoblock.Text = DateTime.Now + "\n" + "Data processing has been stopped.";
-                    ProgressBar.Foreground = Brushes.OrangeRed;
-                    cancellationFlag = false;
-                    clearFlag = true;
-                }
-                catch (Exception excp)
-                {
-                    Console.WriteLine(excp);
-                }
-            }
-            else
-            {
-                infoblock.Text = DateTime.Now + "\n" + "The application is in user's waiting state...";
-            }
         }
 
         private async Task ProcessData(string path, CancellationToken ctn)
@@ -126,11 +76,88 @@ namespace WPFApp
             imgDataCollection.Add(new ImageData(System.IO.Path.GetFileName(path), path, resultDict));
         }
 
-        //private void SortByEmotion()
-        //{
-        //    string emotion = nameof(emoType);
-        //    imgDataCollection = new ObservableCollection<ImageData>(imgDataCollection.OrderByDescending(collection => collection.emotionsDict[emotion]));
-        //}
+        private void SortByEmotion()
+        {
+            string emotion = nameof(emoType);
+            //imgDataCollection = new ObservableCollection<ImageData>(imgDataCollection.OrderByDescending(collection => collection.emotionsDict[emotion]));
+            ImgList.ItemsSource = imgDataCollection;
+        }
+
+        private void OnUploadData(object sender)
+        {
+            var dlg = new Ookii.Dialogs.Wpf.VistaFolderBrowserDialog();
+
+            infoblock.Text = DateTime.Now + "\n" + "Selecting the target directory.";
+
+            if (dlg.ShowDialog(this).GetValueOrDefault())
+            {
+                imgDataCollection.Clear();
+                pathList.Clear();
+                infoblock.Text = DateTime.Now + "\n" + "Data has uploaded.";
+                var length = Directory.GetFiles(dlg.SelectedPath).Length;
+                progressBar = 0.0;
+                double step = 100.0 / length;
+                ProgressBar.Foreground = Brushes.Lime;
+
+                foreach (var imagePath in System.IO.Directory.GetFiles(dlg.SelectedPath)) 
+                { 
+                    pathList.Add(imagePath);
+                    progressBar += step;
+                }
+
+                processFlag = true;
+            }
+            else
+            {
+                infoblock.Text = DateTime.Now + "\n" + "The application is in user's waiting state...";
+            }
+        }
+
+        private async void OnProcessImgs(object sender)
+        {
+            infoblock.Text = DateTime.Now + "\n" + "Data processing has started.";
+
+            progressBar = 0.0;
+            CancellationToken ctn = cts.Token;
+            pgbarStep = 100.0 / pathList.Count();
+            ProgressBar.Foreground = Brushes.Lime;
+
+            try
+            {
+                cancellationFlag = true;
+                foreach (var path in pathList)
+                {
+                    await ProcessData(path, ctn);
+                    progressBar += pgbarStep;
+                }
+
+                if (pathList.Count == imgDataCollection.Count)
+                {
+                    cancellationFlag = false;
+                    clearFlag = true;
+                    infoblock.Text = DateTime.Now + "\n" + "Data processing is complete.";
+                    SortByEmotion();
+                }
+            }
+            catch (OperationCanceledException)
+            {
+                infoblock.Text = DateTime.Now + "\n" + "Data processing has been stopped.";
+                ProgressBar.Foreground = Brushes.OrangeRed;
+                cancellationFlag = false;
+                clearFlag = true;
+            }
+            catch (Exception excp)
+            {
+                Console.WriteLine(excp);
+            }
+        }
+
+        private bool CanProcess(object sender)
+        {
+            if (processFlag)
+                return true;
+            return false;
+        }
 
         private void OnCancellation(object sender)
         {
@@ -148,8 +175,10 @@ namespace WPFApp
         private void OnClearFields(object sender)
         {
             imgDataCollection.Clear();
-            infoblock.Text = DateTime.Now + "\n" + "Data output fields are cleared.";
+            pathList.Clear();
+            infoblock.Text = DateTime.Now + "\n" + "Uploaded data and output fields are cleared.";
             clearFlag = false;
+            processFlag = false;
             progressBar = 0;
         }
 
