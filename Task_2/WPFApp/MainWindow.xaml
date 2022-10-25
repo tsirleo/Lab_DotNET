@@ -86,6 +86,7 @@
             
         <Button Grid.Row="2" Content="Отменить" Margin="0,0,70,0" HorizontalAlignment="Right" VerticalAlignment="Center" Height="50" Width="210" Background="#FFFDB0E5" FontSize="18" FontStyle="Italic" Command="{Binding Cancellation}"/>
         <Button Grid.Row="2" Content="Очистить" Margin="70,0,0,0" HorizontalAlignment="Left" VerticalAlignment="Center" Height="50" Width="210" Background="#FFFDB0E5" FontSize="18" FontStyle="Italic" Command="{Binding ClearOutputFields}"/>
-        <Button Grid.Row="2" Content="Загрузить данные" Margin="0,0,0,0" HorizontalAlignment="Center" VerticalAlignment="Center" Height="50" Width="230" Background="#FFFDB0E5" FontSize="18" FontStyle="Italic" Command="{Binding UploadData}"/>
+        <Button Grid.Row="2" Content="Загрузить данные" Margin="0,0,350,0" HorizontalAlignment="Center" VerticalAlignment="Center" Height="50" Width="230" Background="#FFFDB0E5" FontSize="18" FontStyle="Italic" Command="{Binding UploadData}"/>
+        <Button Grid.Row="2" Content="Обработать данные" Margin="350,0,0,0" HorizontalAlignment="Center" VerticalAlignment="Center" Height="50" Width="230" Background="#FFFDB0E5" FontSize="18" FontStyle="Italic" Command="{Binding ProcessImgs}"/>
     </Grid>
 </Window>
