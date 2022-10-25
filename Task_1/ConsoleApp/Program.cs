@@ -1,6 +1,5 @@
 using System;
 using ModelLib;
-using System.Collections.Concurrent;
 
 namespace ConsoleApp
 {
@@ -149,7 +148,7 @@ namespace ConsoleApp
             }
         }
 
-        static void PrintDict(ConcurrentDictionary<string,double>  dict)
+        static void PrintDict(Dictionary<string,double>  dict)
         {
             foreach (var emotion in dict)
             {

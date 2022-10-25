@@ -9,7 +9,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="tsirleo-onnxEmotions" Version="1.0.4" />
+    <PackageReference Include="tsirleo-onnxEmotions" Version="1.0.6" />
   </ItemGroup>
 
 </Project>
