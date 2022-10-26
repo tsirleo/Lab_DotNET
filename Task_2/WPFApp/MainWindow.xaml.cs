@@ -147,8 +147,10 @@ namespace WPFApp
             catch (OperationCanceledException)
             {
                 infoblock.Text = DateTime.Now + "\n" + "Data processing has been canceled.";
+                cts = new CancellationTokenSource();
                 ProgressBar.Foreground = Brushes.OrangeRed;
                 cancellationFlag = false;
+                processFlag = false;
                 clearFlag = true;
             }
             catch (Exception excp)
