@@ -42,6 +42,7 @@ namespace WPFApp
         private bool clearFlag = false;
         private double pgbar = 0;
         private double pgbarStep;
+        private int numImgs = 1;
 
         public ICommand UploadData { get; private set; }
         public ICommand ProcessImgs { get; private set; }
@@ -97,12 +98,12 @@ namespace WPFApp
                 imgDataCollection.Clear();
                 pathList.Clear();
                 infoblock.Text = DateTime.Now + "\n" + "Data has uploaded.";
-                var length = Directory.GetFiles(dlg.SelectedPath).Length;
+                numImgs = Directory.GetFiles(dlg.SelectedPath).Length;
                 progressBar = 0.0;
-                double step = 100.0 / length;
+                double step = 100.0 / numImgs;
                 ProgressBar.Foreground = Brushes.Lime;
 
-                foreach (var imagePath in System.IO.Directory.GetFiles(dlg.SelectedPath)) 
+                foreach (var imagePath in Directory.GetFiles(dlg.SelectedPath)) 
                 { 
                     pathList.Add(imagePath);
                     progressBar += step;
@@ -128,6 +129,7 @@ namespace WPFApp
             try
             {
                 cancellationFlag = true;
+                processFlag = false;
 
                 foreach (var path in pathList)
                 {
@@ -141,7 +143,6 @@ namespace WPFApp
                     clearFlag = true;
                     infoblock.Text = DateTime.Now + "\n" + "Data processing is complete.";
                     SortByEmotion();
-                    processFlag = false;
                 }
             }
             catch (OperationCanceledException)
@@ -167,7 +168,7 @@ namespace WPFApp
 
         private bool CanUpdate(object sender)
         {
-            if (imgDataCollection.Count > 0)
+            if (imgDataCollection.Count == numImgs)
                 return true;
             return false;
         }
