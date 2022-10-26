@@ -17,7 +17,7 @@
         </ObjectDataProvider>
 
         <DataTemplate x:Key="key_imageList">
-            <Border BorderThickness="1" BorderBrush="#FF00EDE3" CornerRadius="2" Margin="15,8,15,8">
+            <Border BorderThickness="1" BorderBrush="#FF00EDE3" CornerRadius="30" Margin="15,8,15,8">
                 <StackPanel Orientation="Vertical" >
                     <TextBlock Text="{Binding fileName}" Height ="25" Width="180" FontSize="18" TextAlignment="Center" Margin="0,10,0,0"/>
                     <Image HorizontalAlignment="Center" Source="{Binding imgPath}" Width="180" Height="190" Margin="0,0,0,10" VerticalAlignment="Center"/>
@@ -70,7 +70,7 @@
         <ListBox Name="ImgList" Grid.Row="1" Margin="140,10,640,10" Width="600" HorizontalContentAlignment="Stretch" FontSize="16" FontWeight="Bold" Background="#FFD4FFFA" BorderBrush="Black" BorderThickness="2"
                  ItemsSource="{Binding }" ItemTemplate="{StaticResource key_imageList}" ScrollViewer.HorizontalScrollBarVisibility="Hidden"/>
 
-        <Border Grid.Row="1" Margin="890,100,140,100" BorderBrush="Black" BorderThickness="2" Background="#FFD4FFFA" Width="350">
+        <Border Grid.Row="1" Margin="890,50,140,150" BorderBrush="Black" BorderThickness="2" Background="#FFD4FFFA" Width="350">
             <StackPanel Orientation="Vertical">
                 <Border BorderThickness="0"  BorderBrush="{x:Null}" Margin="0,0,0,0" Background="#FFFFD6A9" Height="50">
                     <TextBlock TextWrapping="Wrap" VerticalAlignment="Center" Height="30" FontSize="21" FontWeight="Normal" FontStyle="Normal" TextAlignment="Center" Text="Вероятность классов эмоций"/>
@@ -87,6 +87,7 @@
         <Button Grid.Row="2" Content="Отменить" Margin="0,0,70,0" HorizontalAlignment="Right" VerticalAlignment="Center" Height="50" Width="210" Background="#FFFDB0E5" FontSize="18" FontStyle="Italic" Command="{Binding Cancellation}"/>
         <Button Grid.Row="2" Content="Очистить" Margin="70,0,0,0" HorizontalAlignment="Left" VerticalAlignment="Center" Height="50" Width="210" Background="#FFFDB0E5" FontSize="18" FontStyle="Italic" Command="{Binding ClearOutputFields}"/>
         <Button Grid.Row="2" Content="Загрузить данные" Margin="0,0,350,0" HorizontalAlignment="Center" VerticalAlignment="Center" Height="50" Width="230" Background="#FFFDB0E5" FontSize="18" FontStyle="Italic" Command="{Binding UploadData}"/>
+        <Button Grid.Row="1" Content="Обновить список" Margin="750,400,0,0" HorizontalAlignment="Center" VerticalAlignment="Center" Height="50" Width="230" Background="#FFFDB0E5" FontSize="18" FontStyle="Italic" Command="{Binding UpdateListBox}"/>
         <Button Grid.Row="2" Content="Обработать данные" Margin="350,0,0,0" HorizontalAlignment="Center" VerticalAlignment="Center" Height="50" Width="230" Background="#FFFDB0E5" FontSize="18" FontStyle="Italic" Command="{Binding ProcessImgs}"/>
     </Grid>
 </Window>

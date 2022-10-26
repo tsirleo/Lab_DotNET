@@ -46,6 +46,7 @@ namespace WPFApp
         public ICommand UploadData { get; private set; }
         public ICommand ProcessImgs { get; private set; }
         public ICommand Cancellation { get; private set; }
+        public ICommand UpdateListBox { get; private set; }
         public ICommand ClearOutputFields { get; private set; }
 
         public double progressBar
@@ -65,21 +66,23 @@ namespace WPFApp
             UploadData = new RelayCommand(_ => { OnUploadData(this); });
             ProcessImgs = new RelayCommand(_ => { OnProcessImgs(this); }, CanProcess);
             Cancellation = new RelayCommand(_ => { OnCancellation(this); }, CanCancel);
+            UpdateListBox = new RelayCommand(_ => { OnUpdateListBox(this); }, CanUpdate);
             ClearOutputFields = new RelayCommand(_ => { OnClearFields(this); }, CanClear);
         }
 
         private async Task ProcessData(string path, CancellationToken ctn)
         {
-            var byteSource = File.ReadAllBytes(path);
+            var byteSource = await File.ReadAllBytesAsync(path, ctn);
             var resultDict = await emotionDef.ProcessAnImage(byteSource, ctn);
-
+              
             imgDataCollection.Add(new ImageData(System.IO.Path.GetFileName(path), path, resultDict));
         }
 
         private void SortByEmotion()
         {
-            string emotion = nameof(emoType);
-            //imgDataCollection = new ObservableCollection<ImageData>(imgDataCollection.OrderByDescending(collection => collection.emotionsDict[emotion]));
+            string emotion = emoType.ToString();
+
+            imgDataCollection = new ObservableCollection<ImageData>(imgDataCollection.OrderByDescending(collection => collection.emotionsDict[emotion]));
             ImgList.ItemsSource = imgDataCollection;
         }
 
@@ -125,23 +128,25 @@ namespace WPFApp
             try
             {
                 cancellationFlag = true;
+
                 foreach (var path in pathList)
                 {
                     await ProcessData(path, ctn);
                     progressBar += pgbarStep;
                 }
-
+             
                 if (pathList.Count == imgDataCollection.Count)
                 {
                     cancellationFlag = false;
                     clearFlag = true;
                     infoblock.Text = DateTime.Now + "\n" + "Data processing is complete.";
                     SortByEmotion();
+                    processFlag = false;
                 }
             }
             catch (OperationCanceledException)
             {
-                infoblock.Text = DateTime.Now + "\n" + "Data processing has been stopped.";
+                infoblock.Text = DateTime.Now + "\n" + "Data processing has been canceled.";
                 ProgressBar.Foreground = Brushes.OrangeRed;
                 cancellationFlag = false;
                 clearFlag = true;
@@ -150,6 +155,19 @@ namespace WPFApp
             {
                 Console.WriteLine(excp);
             }
+        }
+
+        private void OnUpdateListBox(object sender)
+        {
+            SortByEmotion();
+            infoblock.Text = DateTime.Now + "\n" + "Data in ListBox is updated.";
+        }
+
+        private bool CanUpdate(object sender)
+        {
+            if (imgDataCollection.Count > 0)
+                return true;
+            return false;
         }
 
         private bool CanProcess(object sender)
@@ -175,10 +193,9 @@ namespace WPFApp
         private void OnClearFields(object sender)
         {
             imgDataCollection.Clear();
-            pathList.Clear();
             infoblock.Text = DateTime.Now + "\n" + "Uploaded data and output fields are cleared.";
             clearFlag = false;
-            processFlag = false;
+            processFlag = true;
             progressBar = 0;
         }
 
