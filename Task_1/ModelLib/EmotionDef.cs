@@ -3,7 +3,6 @@ using Microsoft.ML.OnnxRuntime.Tensors;
 using SixLabors.ImageSharp;
 using SixLabors.ImageSharp.PixelFormats;
 using SixLabors.ImageSharp.Processing;
-using System.Collections.Concurrent;
 
 namespace ModelLib;
 
@@ -19,9 +18,9 @@ public class EmotionDef
         session = new InferenceSession(memoryStream.ToArray()); 
     }
 
-    public async Task<ConcurrentDictionary<string,double>> ProcessAnImage(byte[] source, CancellationToken ctn)
+    public async Task<Dictionary<string,double>> ProcessAnImage(byte[] source, CancellationToken ctn)
     {
-            var resultDict = new ConcurrentDictionary<string,double> ();
+            var resultDict = new Dictionary<string,double> ();
             var funcMemStream = new MemoryStream(source);
             
             if (ctn.IsCancellationRequested) return resultDict;
