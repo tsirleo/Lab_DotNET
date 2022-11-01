@@ -9,6 +9,9 @@
 # VS Code
 .vscode/
 
+# VS
+.vs/
+
 # Build results
 
 [Dd]ebug/
