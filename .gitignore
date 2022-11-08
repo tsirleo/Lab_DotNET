@@ -139,5 +139,6 @@ $RECYCLE.BIN/
 # Database
 [Mm]igrations/
 [Pp]roperties/
+*.db
 
 _NCrunch*
