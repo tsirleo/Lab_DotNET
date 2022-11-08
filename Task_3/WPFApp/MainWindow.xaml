@@ -6,6 +6,7 @@
         xmlns:local="clr-namespace:WPFApp"
         xmlns:sys="clr-namespace:System;assembly=mscorlib"
         mc:Ignorable="d"
+        Loaded="MainWindow_OnLoaded"
         Title="MainWindow" Height="800" Width="1400"
         ResizeMode="CanResize">
     
@@ -84,10 +85,12 @@
             </StackPanel>
         </Border>
             
-        <Button Grid.Row="2" Content="Отменить" Margin="0,0,70,0" HorizontalAlignment="Right" VerticalAlignment="Center" Height="50" Width="210" Background="#FFFDB0E5" FontSize="18" FontStyle="Italic" Command="{Binding Cancellation}"/>
-        <Button Grid.Row="2" Content="Очистить" Margin="70,0,0,0" HorizontalAlignment="Left" VerticalAlignment="Center" Height="50" Width="210" Background="#FFFDB0E5" FontSize="18" FontStyle="Italic" Command="{Binding ClearOutputFields}"/>
-        <Button Grid.Row="2" Content="Загрузить данные" Margin="0,0,350,0" HorizontalAlignment="Center" VerticalAlignment="Center" Height="50" Width="230" Background="#FFFDB0E5" FontSize="18" FontStyle="Italic" Command="{Binding UploadData}"/>
-        <Button Grid.Row="1" Content="Обновить список" Margin="750,400,0,0" HorizontalAlignment="Center" VerticalAlignment="Center" Height="50" Width="230" Background="#FFFDB0E5" FontSize="18" FontStyle="Italic" Command="{Binding UpdateListBox}"/>
-        <Button Grid.Row="2" Content="Обработать данные" Margin="350,0,0,0" HorizontalAlignment="Center" VerticalAlignment="Center" Height="50" Width="230" Background="#FFFDB0E5" FontSize="18" FontStyle="Italic" Command="{Binding ProcessImgs}"/>
+        <Button Grid.Row="2" Content="Отменить" Margin="0,0,40,0" HorizontalAlignment="Right" VerticalAlignment="Center" Height="50" Width="210" Background="#FFFDB0E5" FontSize="18" FontStyle="Italic" Command="{Binding Cancellation}"/>
+        <Button Grid.Row="2" Content="Очистить" Margin="40,0,0,0" HorizontalAlignment="Left" VerticalAlignment="Center" Height="50" Width="210" Background="#FFFDB0E5" FontSize="18" FontStyle="Italic" Command="{Binding ClearOutputFields}"/>
+        <Button Grid.Row="2" Content="Отобразить данные БД" Margin="0,0,575,0" HorizontalAlignment="Center" VerticalAlignment="Center" Height="50" Width="230" Background="#FFFDB0E5" FontSize="18" FontStyle="Italic" Command="{Binding UploadDB}"/>
+        <Button Grid.Row="2" Content="Загрузить новые данные" Margin="0,0,0,0" HorizontalAlignment="Center" VerticalAlignment="Center" Height="50" Width="230" Background="#FFFDB0E5" FontSize="18" FontStyle="Italic" Command="{Binding UploadData}"/>
+        <Button Grid.Row="2" Content="Обработать данные" Margin="575,0,0,0" HorizontalAlignment="Center" VerticalAlignment="Center" Height="50" Width="230" Background="#FFFDB0E5" FontSize="18" FontStyle="Italic" Command="{Binding ProcessImgs}"/>
+        <Button Grid.Row="1" Content="Обновить список" Margin="500,450,0,0" HorizontalAlignment="Center" VerticalAlignment="Center" Height="50" Width="230" Background="#FFFDB0E5" FontSize="18" FontStyle="Italic" Command="{Binding UpdateListBox}"/>
+        <Button Grid.Row="1" Content="Удалить элемент" Margin="1050,450,0,0" HorizontalAlignment="Center" VerticalAlignment="Center" Height="50" Width="230" Background="#FFFDB0E5" FontSize="18" FontStyle="Italic" Command="{Binding DeleteElem}"/>
     </Grid>
 </Window>
