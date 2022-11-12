@@ -30,7 +30,6 @@ namespace WPFApp
         List<string> pathList = new List<string>();
 
         private CancellationTokenSource cts = new CancellationTokenSource();
-        private SemaphoreSlim semaphore = new SemaphoreSlim(1, 1);
         private HashAlgorithm hashAlg = MD5.Create();
 
         private bool cancellationFlag;
@@ -106,9 +105,8 @@ namespace WPFApp
             LoadDB();
         }
 
-        private async void LoadDB()
+        private void LoadDB()
         {
-            await semaphore.WaitAsync();
             using (var db = new DBContext())
             {
                 var images = db.imgInfo.Include(item => item.image).ToList();
@@ -116,7 +114,6 @@ namespace WPFApp
                 imgDataCollection = new ObservableCollection<ImageInfo>(images);
                 ImgList.ItemsSource = imgDataCollection;
             }
-            semaphore.Release();
 
             SortByEmotion();
         }
@@ -131,7 +128,6 @@ namespace WPFApp
 
         private bool CheckImgNotExistDB(byte[] hash, byte[] source)
         {
-            semaphore.Wait();
             using (var db = new DBContext())
             {
                 if (db.imgInfo.Any(x => Equals(x.hashCode, hash)))
@@ -140,7 +136,6 @@ namespace WPFApp
 
                     if (query.Any(x => Equals(x.image.blob, source)))
                     {
-                        semaphore.Release();
                         return false;
                     }
                 }
@@ -156,8 +151,6 @@ namespace WPFApp
                 db.imgInfo.Add(imageData);
                 db.SaveChanges();
             }
-
-            semaphore.Release();
         }
 
         private async Task<ImageInfo> ProcessData(string path, CancellationToken ctn)
@@ -229,7 +222,6 @@ namespace WPFApp
                 cts = new CancellationTokenSource();
                 ProgressBar.Foreground = Brushes.OrangeRed;
                 SetFlags(false, false, false, true, true, true);
-                semaphore.Release();
             }
             catch (Exception excp)
             {
@@ -285,12 +277,11 @@ namespace WPFApp
             return false;
         }
 
-        private async void OnDeleteElem(object sender)
+        private void OnDeleteElem(object sender)
         {
             var item = ImgList.SelectedItem as ImageInfo;
             if (item == null) return;
 
-            await semaphore.WaitAsync();
             using (var db = new DBContext())
             {
                 var img = db.imgInfo
@@ -301,7 +292,6 @@ namespace WPFApp
 
                 if (img == null)
                 {
-                    semaphore.Release();
                     return;
                 }
 
@@ -310,7 +300,6 @@ namespace WPFApp
                 db.SaveChanges();
                 imgDataCollection.Remove(item);
             }
-            semaphore.Release();
 
             infoblock.FontSize = 18;
             infoblock.Text = DateTime.Now + "\n" + "The selected item has been deleted.";
