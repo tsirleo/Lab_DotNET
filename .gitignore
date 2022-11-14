@@ -9,6 +9,9 @@
 # VS Code
 .vscode/
 
+# VS
+.vs/
+
 # Build results
 
 [Dd]ebug/
@@ -132,5 +135,10 @@ $RECYCLE.BIN/
 
 # Mac desktop service store files
 .DS_Store
+
+# Database
+[Mm]igrations/
+[Pp]roperties/
+*.db
 
 _NCrunch*
