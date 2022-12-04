@@ -45,29 +45,25 @@ namespace WPFApp
             emotionsDict = new Dictionary<string, double>(dict);
         }
 
-        public void SetBlob(byte[] source, ImageInfo info)
+        public void SetBlob(byte[] source)
         {
-            image = new ImageBLOB(source, info);
+            image = new ImageBLOB(source);
         }
     }
 
     public class ImageBLOB
     {
         [Key]
+        public int blobId { get; set; }
         [ForeignKey(nameof(ImageInfo))]
-        public int imageId { get; set; }
+        public int imageInfoId;
         public byte[] blob { get; set; }
-        public ImageInfo imageData { get; set; }
 
-        public ImageBLOB() 
-        {
-            imageData = new ImageInfo();
-        }
+        public ImageBLOB() { }
 
-        public ImageBLOB(byte[] source, ImageInfo info)
+        public ImageBLOB(byte[] source)
         {
             blob = source;
-            imageData = info;
         }
     }
 }
