@@ -72,7 +72,8 @@ namespace Server.Database
 
                     if (resultDict != null && ContainsAllKeys(resultDict))
                     {
-                        var imgInstance = new ImageInfo(Path.GetFileName(path), path, hash, resultDict);
+                        var orderedDict = resultDict.OrderByDescending(pair => pair.Value).ToDictionary(pair => pair.Key, pair => pair.Value);
+                        var imgInstance = new ImageInfo(Path.GetFileName(path), path, hash, orderedDict);
                         imgInstance.SetBlob(byteSource);
 
                         if (imgInstance != null)
@@ -97,6 +98,7 @@ namespace Server.Database
             }
             catch (Exception ex)
             {
+                //throw new Error(ex.ToString(), HttpStatusCode.InternalServerError);
                 throw new Error("Error happened while writing image information to DB.", HttpStatusCode.InternalServerError);
             }
         }
