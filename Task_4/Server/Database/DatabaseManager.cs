@@ -181,18 +181,9 @@ namespace Server.Database
                 {
                     var images = db.imgInfo.Include(x => x.image);
 
-                    if (images.Count() == 0)
-                    {
-                        throw new Error("There is no data in the DB", HttpStatusCode.NotModified);
-                    }
-
                     db.Database.ExecuteSqlRaw("DELETE FROM [imgInfo]");
                     db.Database.ExecuteSqlRaw("DELETE FROM [imgData]");
                 }
-            }
-            catch (Error err)
-            {
-                throw err;
             }
             catch (Exception ex)
             {
