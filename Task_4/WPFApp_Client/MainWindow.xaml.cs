@@ -429,7 +429,7 @@ namespace WPFApp_Client
             await _retryPolicy.ExecuteAsync(async () =>
             {
                 HttpClient httpClient = new HttpClient();
-                var response = await httpClient.GetAsync($"{apiUrl}/{emoType.ToString()}");
+                var response = await httpClient.GetAsync($"{apiUrl}/emotion/{emoType.ToString()}");
                 if (response.IsSuccessStatusCode)
                 {
                     imgDataCollection.Clear();
