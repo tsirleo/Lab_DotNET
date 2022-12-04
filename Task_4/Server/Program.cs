@@ -6,9 +6,8 @@ using Server.Logger;
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container
-builder.Services.AddControllers();
-builder.Services.AddMvc();
 builder.Services.AddSingleton<IDatabase>(new DatabaseManager());
+builder.Services.AddControllers();
 
 // Register the Swagger services
 builder.Services.AddEndpointsApiExplorer();
