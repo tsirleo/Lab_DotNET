@@ -353,9 +353,9 @@ namespace WPFApp_Client
 
         private void OnUploadDB(object sender)
         {
+            SetFlags(false, false, true, true, true, true, true);
             pathList.Clear();
             LoadDB();
-            SetFlags(false, false, true, true, true, false, true);
         }
 
         private bool CanUploadDB(object sender)
@@ -422,6 +422,8 @@ namespace WPFApp_Client
 
         private async void OnDropDB(object sender)
         {
+            SetFlags(false, false, false, true, true, false, true);
+
             try
             {
                 await _retryPolicy.ExecuteAsync(async () =>
@@ -464,6 +466,7 @@ namespace WPFApp_Client
         private async void OnUploadEmotion(object sender)
         {
             var emotion = emoType.ToString();
+            SetFlags(false, false, true, true, true, true, true);
 
             try
             {
@@ -513,6 +516,7 @@ namespace WPFApp_Client
         private async void OnUploadImage(object sender)
         {
             var id = idInput;
+            SetFlags(false, false, true, true, true, true, false);
 
             try
             {
