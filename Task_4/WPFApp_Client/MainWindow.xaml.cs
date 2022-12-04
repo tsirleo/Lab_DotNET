@@ -137,7 +137,7 @@ namespace WPFApp_Client
                         var mess = await response.Content.ReadAsStringAsync();
 
                         infoblock.FontSize = 14;
-                        infoblock.Text = DateTime.Now + "\n" + "Request status: " + code + "\n" + "Message: " + mess;
+                        infoblock.Text = DateTime.Now + "\n" + "Request: GET /images" + "   " + "Request status: " + code + "\n" + "Message: " + mess;
 
                         imgDataCollection = new ObservableCollection<ImageInfo>();
                         ImgList.ItemsSource = imgDataCollection;
@@ -147,7 +147,7 @@ namespace WPFApp_Client
             catch(HttpRequestException)
             {
                 infoblock.FontSize = 14;
-                infoblock.Text = DateTime.Now + "\n" + "Request status: 500" + "\n" + "Message: " + "Cannot connect to DB";
+                infoblock.Text = DateTime.Now + "\n" + "Request: GET /images" + "   " + "Request status: 500" + "\n" + "Message: " + "Cannot connect to DB";
             }
         }
 
@@ -188,7 +188,7 @@ namespace WPFApp_Client
                             var mess = await response.Content.ReadAsStringAsync();
 
                             infoblock.FontSize = 14;
-                            infoblock.Text = DateTime.Now + "\n" + "Request status: " + code + "\n" + "Message: " + mess;
+                            infoblock.Text = DateTime.Now + "\n" + "Request: POST /images" + "   " + "Request status: " + code + "\n" + "Message: " + mess;
                         }
                     }
                     else
@@ -197,14 +197,14 @@ namespace WPFApp_Client
                         var mess = await response.Content.ReadAsStringAsync();
 
                         infoblock.FontSize = 14;
-                        infoblock.Text = DateTime.Now + "\n" + "Request status: " + code + "\n" + "Message: " + mess;
+                        infoblock.Text = DateTime.Now + "\n" + "Request: POST /images" + "   " + "Request status: " + code + "\n" + "Message: " + mess;
                     }
                 });
             }
             catch (HttpRequestException)
             {
                 infoblock.FontSize = 14;
-                infoblock.Text = DateTime.Now + "\n" + "Request status: 500" + "\n" + "Message: " + "Cannot connect to DB";
+                infoblock.Text = DateTime.Now + "\n" + "Request: POST /images" + "   " + "Request status: 500" + "\n" + "Message: " + "Cannot connect to DB";
             }
         }
 
@@ -311,13 +311,14 @@ namespace WPFApp_Client
         {
             var item = ImgList.SelectedItem as ImageInfo;
             if (item == null) return;
+            var id = item.imageId;
 
             try
             {
                 await _retryPolicy.ExecuteAsync(async () =>
                 {
                     HttpClient httpClient = new HttpClient();
-                    var response = await httpClient.DeleteAsync($"{apiUrl}/{item.imageId}");
+                    var response = await httpClient.DeleteAsync($"{apiUrl}/{id}");
                     if (response.IsSuccessStatusCode)
                     {
                         imgDataCollection.Remove(item);
@@ -331,14 +332,14 @@ namespace WPFApp_Client
                         var mess = await response.Content.ReadAsStringAsync();
 
                         infoblock.FontSize = 14;
-                        infoblock.Text = DateTime.Now + "\n" + "Request status: " + code + "\n" + "Message: " + mess;
+                        infoblock.Text = DateTime.Now + "\n" + $"Request: DELETE /images/{id}" + "   " + "Request status: " + code + "\n" + "Message: " + mess;
                     }
                 });
             }
             catch (HttpRequestException)
             {
                 infoblock.FontSize = 14;
-                infoblock.Text = DateTime.Now + "\n" + "Request status: 500" + "\n" + "Message: " + "Cannot connect to DB";
+                infoblock.Text = DateTime.Now + "\n" + $"Request: DELETE /images/{id}" + "   " + "Request status: 500" + "\n" + "Message: " + "Cannot connect to DB";
             }
         }
 
@@ -441,14 +442,14 @@ namespace WPFApp_Client
                         var mess = await response.Content.ReadAsStringAsync();
 
                         infoblock.FontSize = 14;
-                        infoblock.Text = DateTime.Now + "\n" + "Request status: " + code + "\n" + "Message: " + mess;
+                        infoblock.Text = DateTime.Now + "\n" + "Request: DELETE /images" + "   " +  "Request status: " + code + "\n" + "Message: " + mess;
                     }
                 });
             }
             catch (HttpRequestException)
             {
                 infoblock.FontSize = 14;
-                infoblock.Text = DateTime.Now + "\n" + "Request status: 500" + "\n" + "Message: " + "Cannot connect to DB";
+                infoblock.Text = DateTime.Now + "\n" + "Request: DELETE /images" + "   " +  "Request status: 500" + "\n" + "Message: " + "Cannot connect to DB";
             }
         }
 
@@ -462,12 +463,14 @@ namespace WPFApp_Client
 
         private async void OnUploadEmotion(object sender)
         {
+            var emotion = emoType.ToString();
+
             try
             {
                 await _retryPolicy.ExecuteAsync(async () =>
                 {
                     HttpClient httpClient = new HttpClient();
-                    var response = await httpClient.GetAsync($"{apiUrl}/emotion/{emoType.ToString()}");
+                    var response = await httpClient.GetAsync($"{apiUrl}/emotion/{emotion}");
 
                     if (response.IsSuccessStatusCode)
                     {
@@ -477,7 +480,7 @@ namespace WPFApp_Client
                         SortByEmotion();
 
                         infoblock.FontSize = 18;
-                        infoblock.Text = DateTime.Now + "\n" + $"Data has loaded from the database for \"{emoType.ToString()}\".";
+                        infoblock.Text = DateTime.Now + "\n" + $"Data has loaded from the database for \"{emotion}\".";
                     }
                     else
                     {
@@ -485,7 +488,7 @@ namespace WPFApp_Client
                         var mess = await response.Content.ReadAsStringAsync();
 
                         infoblock.FontSize = 14;
-                        infoblock.Text = DateTime.Now + "\n" + "Request status: " + code + "\n" + "Message: " + mess;
+                        infoblock.Text = DateTime.Now + "\n" + $"Request: GET /images/emotion/{emotion}" + "   " +  "Request status: " + code + "\n" + "Message: " + mess;
 
                         imgDataCollection = new ObservableCollection<ImageInfo>();
                         ImgList.ItemsSource = imgDataCollection;
@@ -495,7 +498,7 @@ namespace WPFApp_Client
             catch (HttpRequestException)
             {
                 infoblock.FontSize = 14;
-                infoblock.Text = DateTime.Now + "\n" + "Request status: 500" + "\n" + "Message: " + "Cannot connect to DB";
+                infoblock.Text = DateTime.Now + "\n" + $"Request: GET /images/emotion/{emotion}" + "   " + "Request status: 500" + "\n" + "Message: " + "Cannot connect to DB";
             }
         }
 
@@ -509,12 +512,14 @@ namespace WPFApp_Client
 
         private async void OnUploadImage(object sender)
         {
+            var id = idInput;
+
             try
             {
                 await _retryPolicy.ExecuteAsync(async () =>
                 {
                     HttpClient httpClient = new HttpClient();
-                    var response = await httpClient.GetAsync($"{apiUrl}/{idInput}");
+                    var response = await httpClient.GetAsync($"{apiUrl}/{id}");
                     if (response.IsSuccessStatusCode)
                     {
                         var image = await response.Content.ReadFromJsonAsync<ImageInfo>();
@@ -524,7 +529,7 @@ namespace WPFApp_Client
                         ImgList.ItemsSource = imgDataCollection;
 
                         infoblock.FontSize = 18;
-                        infoblock.Text = DateTime.Now + "\n" + $"Image with id = {idInput} is loaded.";
+                        infoblock.Text = DateTime.Now + "\n" + $"Image with id = {id} is loaded.";
                     }
                     else
                     {
@@ -532,7 +537,7 @@ namespace WPFApp_Client
                         var mess = await response.Content.ReadAsStringAsync();
 
                         infoblock.FontSize = 14;
-                        infoblock.Text = DateTime.Now + "\n" + "Request status: " + code + "\n" + "Message: " + mess;
+                        infoblock.Text = DateTime.Now + "\n" + $"Request: GET /images/{id}" + "   " + "Request status: " + code + "\n" + "Message: " + mess;
 
                         imgDataCollection = new ObservableCollection<ImageInfo>();
                         ImgList.ItemsSource = imgDataCollection;
@@ -542,7 +547,7 @@ namespace WPFApp_Client
             catch (HttpRequestException)
             {
                 infoblock.FontSize = 14;
-                infoblock.Text = DateTime.Now + "\n" + "Request status: 500" + "\n" + "Message: " + "Cannot connect to DB";
+                infoblock.Text = DateTime.Now + "\n" + $"Request: GET /images/{id}" + "   " + "Request status: 500" + "\n" + "Message: " + "Cannot connect to DB";
             }
         }
 
