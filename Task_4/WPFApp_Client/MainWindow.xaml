@@ -48,17 +48,17 @@
             </Border>
             <Border BorderThickness="1" BorderBrush="Black" HorizontalAlignment="Center" Height="100" Margin="0,8,1190,0" VerticalAlignment="Top"/>
 
-            <Border BorderThickness="2" BorderBrush="Black" Margin="900,8,25,9" Background="#FFD4FFFA" Height="100">
+            <Border BorderThickness="2" BorderBrush="Black" Margin="820,8,10,9" Background="#FFD4FFFA" Height="100">
                 <StackPanel Orientation="Horizontal">
                     <Border BorderThickness="0"  BorderBrush="{x:Null}" Margin="0,0,0,0" Background="#FFFFD6A9" Height="100" Width="78">
                         <TextBlock TextWrapping="Wrap" VerticalAlignment="Center" Height="60" FontSize="16" FontWeight="Normal" FontStyle="Normal" TextAlignment="Center" Text="Info message"/>
                     </Border>
-                    <TextBlock Name="infoblock" Margin="10,0,0,0" Height="60" Width="375" FontSize="18" TextAlignment="Center"/>
+                    <TextBlock Name="infoblock" Margin="10,0,0,0" Height="60" Width="470" FontSize="18" TextAlignment="Center"/>
                 </StackPanel>
             </Border>
-            <Border BorderThickness="1" BorderBrush="Black" HorizontalAlignment="Center" Height="100" Margin="561,8,0,0" VerticalAlignment="Top"/>
+            <Border BorderThickness="1" BorderBrush="Black" HorizontalAlignment="Center" Height="100" Margin="400,8,0,0" VerticalAlignment="Top"/>
 
-            <StackPanel Orientation="Horizontal" Margin="460,30,557,30">
+            <StackPanel Orientation="Horizontal" Margin="410,30,605,30">
                 <Border BorderThickness="2" BorderBrush="Black" Margin="0,0,0,0" Background="#FFFFD6A9" Height="44" Width="80">
                     <TextBlock TextWrapping="Wrap" VerticalAlignment="Center" Height="30" FontSize="16" FontWeight="Normal" FontStyle="Normal" TextAlignment="Center" Text="Progress"/>
                 </Border>
