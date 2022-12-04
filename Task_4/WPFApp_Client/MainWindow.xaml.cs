@@ -36,7 +36,7 @@ namespace WPFApp_Client
         private CancellationTokenSource cts = new CancellationTokenSource();
 
         private readonly string apiUrl = "https://localhost:7173/images";
-        private const int maxRetries = 5;
+        private const int maxRetries = 3;
         private readonly AsyncRetryPolicy _retryPolicy;
 
         private bool cancellationFlag;
@@ -115,32 +115,40 @@ namespace WPFApp_Client
 
         private async void LoadDB()
         {
-            await _retryPolicy.ExecuteAsync(async () =>
+            try
             {
-                HttpClient httpClient = new HttpClient();
-                var response = await httpClient.GetAsync(apiUrl);
-                if (response.IsSuccessStatusCode)
+                await _retryPolicy.ExecuteAsync(async () =>
                 {
-                    imgDataCollection.Clear();
-                    imgDataCollection = await response.Content.ReadFromJsonAsync<ObservableCollection<ImageInfo>>();
-                    ImgList.ItemsSource = imgDataCollection;
-                    SortByEmotion();
+                    HttpClient httpClient = new HttpClient();
+                    var response = await httpClient.GetAsync(apiUrl);
+                    if (response.IsSuccessStatusCode)
+                    {
+                        imgDataCollection.Clear();
+                        imgDataCollection = await response.Content.ReadFromJsonAsync<ObservableCollection<ImageInfo>>();
+                        ImgList.ItemsSource = imgDataCollection;
+                        SortByEmotion();
 
-                    infoblock.FontSize = 18;
-                    infoblock.Text = DateTime.Now + "\n" + "Data has lodaded from the database.";
-                }
-                else
-                {
-                    var code = response.StatusCode;
-                    var mess = await response.Content.ReadAsStringAsync();
+                        infoblock.FontSize = 18;
+                        infoblock.Text = DateTime.Now + "\n" + "Data has lodaded from the database.";
+                    }
+                    else
+                    {
+                        var code = response.StatusCode;
+                        var mess = await response.Content.ReadAsStringAsync();
 
-                    infoblock.FontSize = 14;
-                    infoblock.Text = DateTime.Now + "\n" + "Request status: " + code + "\n" + "Message: " + mess;
+                        infoblock.FontSize = 14;
+                        infoblock.Text = DateTime.Now + "\n" + "Request status: " + code + "\n" + "Message: " + mess;
 
-                    imgDataCollection = new ObservableCollection<ImageInfo>();
-                    ImgList.ItemsSource = imgDataCollection;
-                }
-            });
+                        imgDataCollection = new ObservableCollection<ImageInfo>();
+                        ImgList.ItemsSource = imgDataCollection;
+                    }
+                });
+            }
+            catch(HttpRequestException)
+            {
+                infoblock.FontSize = 14;
+                infoblock.Text = DateTime.Now + "\n" + "Request status: 500" + "\n" + "Message: " + "Cannot connect to DB";
+            }
         }
 
         private void SortByEmotion()
@@ -158,21 +166,32 @@ namespace WPFApp_Client
 
             var data = (byteSource, path);
 
-            await _retryPolicy.ExecuteAsync(async () =>
+            try
             {
-                var httpClient = new HttpClient();
-                httpClient.DefaultRequestHeaders.Accept.Add(new System.Net.Http.Headers.MediaTypeWithQualityHeaderValue("application/json"));
-                var response = await HttpClientJsonExtensions.PostAsJsonAsync(httpClient, apiUrl, data, ctn);
-
-                if (response.IsSuccessStatusCode)
+                await _retryPolicy.ExecuteAsync(async () =>
                 {
-                    if (response.StatusCode == HttpStatusCode.Created)
+                    var httpClient = new HttpClient();
+                    httpClient.DefaultRequestHeaders.Accept.Add(new System.Net.Http.Headers.MediaTypeWithQualityHeaderValue("application/json"));
+                    var response = await HttpClientJsonExtensions.PostAsJsonAsync(httpClient, apiUrl, data, ctn);
+
+                    if (response.IsSuccessStatusCode)
                     {
-                        imgDataCollection.Add(await response.Content.ReadFromJsonAsync<ImageInfo>());
+                        if (response.StatusCode == HttpStatusCode.Created)
+                        {
+                            imgDataCollection.Add(await response.Content.ReadFromJsonAsync<ImageInfo>());
+                        }
+                        else if (response.StatusCode == HttpStatusCode.NoContent)
+                            throw new OperationCanceledException();
+                        else if (response.StatusCode == HttpStatusCode.OK)
+                        {
+                            var code = (int)response.StatusCode;
+                            var mess = await response.Content.ReadAsStringAsync();
+
+                            infoblock.FontSize = 14;
+                            infoblock.Text = DateTime.Now + "\n" + "Request status: " + code + "\n" + "Message: " + mess;
+                        }
                     }
-                    else if (response.StatusCode == HttpStatusCode.NoContent)
-                        throw new OperationCanceledException();
-                    else if (response.StatusCode == HttpStatusCode.OK)
+                    else
                     {
                         var code = (int)response.StatusCode;
                         var mess = await response.Content.ReadAsStringAsync();
@@ -180,16 +199,13 @@ namespace WPFApp_Client
                         infoblock.FontSize = 14;
                         infoblock.Text = DateTime.Now + "\n" + "Request status: " + code + "\n" + "Message: " + mess;
                     }
-                }
-                else
-                {
-                    var code = (int)response.StatusCode;
-                    var mess = await response.Content.ReadAsStringAsync();
-
-                    infoblock.FontSize = 14;
-                    infoblock.Text = DateTime.Now + "\n" + "Request status: " + code + "\n" + "Message: " + mess;
-                }
-            });
+                });
+            }
+            catch (HttpRequestException)
+            {
+                infoblock.FontSize = 14;
+                infoblock.Text = DateTime.Now + "\n" + "Request status: 500" + "\n" + "Message: " + "Cannot connect to DB";
+            }
         }
 
         private void OnProcessImgs(object sender)
@@ -296,26 +312,34 @@ namespace WPFApp_Client
             var item = ImgList.SelectedItem as ImageInfo;
             if (item == null) return;
 
-            await _retryPolicy.ExecuteAsync(async () =>
+            try
             {
-                HttpClient httpClient = new HttpClient();
-                var response = await httpClient.DeleteAsync($"{apiUrl}/{item.imageId}");
-                if (response.IsSuccessStatusCode)
+                await _retryPolicy.ExecuteAsync(async () =>
                 {
-                    imgDataCollection.Remove(item);
+                    HttpClient httpClient = new HttpClient();
+                    var response = await httpClient.DeleteAsync($"{apiUrl}/{item.imageId}");
+                    if (response.IsSuccessStatusCode)
+                    {
+                        imgDataCollection.Remove(item);
 
-                    infoblock.FontSize = 18;
-                    infoblock.Text = DateTime.Now + "\n" + "The selected item has been deleted.";
-                }
-                else
-                {
-                    var code = response.StatusCode;
-                    var mess = await response.Content.ReadAsStringAsync();
+                        infoblock.FontSize = 18;
+                        infoblock.Text = DateTime.Now + "\n" + "The selected item has been deleted.";
+                    }
+                    else
+                    {
+                        var code = response.StatusCode;
+                        var mess = await response.Content.ReadAsStringAsync();
 
-                    infoblock.FontSize = 14;
-                    infoblock.Text = DateTime.Now + "\n" + "Request status: " + code + "\n" + "Message: " + mess;
-                }
-            });
+                        infoblock.FontSize = 14;
+                        infoblock.Text = DateTime.Now + "\n" + "Request status: " + code + "\n" + "Message: " + mess;
+                    }
+                });
+            }
+            catch (HttpRequestException)
+            {
+                infoblock.FontSize = 14;
+                infoblock.Text = DateTime.Now + "\n" + "Request status: 500" + "\n" + "Message: " + "Cannot connect to DB";
+            }
         }
 
         private bool CanDelete(object sender)
@@ -397,27 +421,35 @@ namespace WPFApp_Client
 
         private async void OnDropDB(object sender)
         {
-            await _retryPolicy.ExecuteAsync(async () =>
+            try
             {
-                var httpClient = new HttpClient();
-                var response = await httpClient.DeleteAsync(apiUrl);
-
-                if (response.IsSuccessStatusCode)
+                await _retryPolicy.ExecuteAsync(async () =>
                 {
-                    imgDataCollection.Clear();
+                    var httpClient = new HttpClient();
+                    var response = await httpClient.DeleteAsync(apiUrl);
 
-                    infoblock.FontSize = 18;
-                    infoblock.Text = DateTime.Now + "\n" + "All items in DB have been deleted.";
-                }
-                else
-                {
-                    var code = response.StatusCode;
-                    var mess = await response.Content.ReadAsStringAsync();
+                    if (response.IsSuccessStatusCode)
+                    {
+                        imgDataCollection.Clear();
 
-                    infoblock.FontSize = 14;
-                    infoblock.Text = DateTime.Now + "\n" + "Request status: " + code + "\n" + "Message: " + mess;
-                }
-            });
+                        infoblock.FontSize = 18;
+                        infoblock.Text = DateTime.Now + "\n" + "All items in DB have been deleted.";
+                    }
+                    else
+                    {
+                        var code = response.StatusCode;
+                        var mess = await response.Content.ReadAsStringAsync();
+
+                        infoblock.FontSize = 14;
+                        infoblock.Text = DateTime.Now + "\n" + "Request status: " + code + "\n" + "Message: " + mess;
+                    }
+                });
+            }
+            catch (HttpRequestException)
+            {
+                infoblock.FontSize = 14;
+                infoblock.Text = DateTime.Now + "\n" + "Request status: 500" + "\n" + "Message: " + "Cannot connect to DB";
+            }
         }
 
         private bool CanDropDB(object sender)
@@ -430,33 +462,41 @@ namespace WPFApp_Client
 
         private async void OnUploadEmotion(object sender)
         {
-            await _retryPolicy.ExecuteAsync(async () =>
+            try
             {
-                HttpClient httpClient = new HttpClient();
-                var response = await httpClient.GetAsync($"{apiUrl}/emotion/{emoType.ToString()}");
-
-                if (response.IsSuccessStatusCode)
+                await _retryPolicy.ExecuteAsync(async () =>
                 {
-                    imgDataCollection.Clear();
-                    imgDataCollection = await response.Content.ReadFromJsonAsync<ObservableCollection<ImageInfo>>();
-                    ImgList.ItemsSource = imgDataCollection;
-                    SortByEmotion();
+                    HttpClient httpClient = new HttpClient();
+                    var response = await httpClient.GetAsync($"{apiUrl}/emotion/{emoType.ToString()}");
 
-                    infoblock.FontSize = 18;
-                    infoblock.Text = DateTime.Now + "\n" + $"Data has loaded from the database for \"{emoType.ToString()}\".";
-                }
-                else
-                {
-                    var code = response.StatusCode;
-                    var mess = await response.Content.ReadAsStringAsync();
+                    if (response.IsSuccessStatusCode)
+                    {
+                        imgDataCollection.Clear();
+                        imgDataCollection = await response.Content.ReadFromJsonAsync<ObservableCollection<ImageInfo>>();
+                        ImgList.ItemsSource = imgDataCollection;
+                        SortByEmotion();
 
-                    infoblock.FontSize = 14;
-                    infoblock.Text = DateTime.Now + "\n" + "Request status: " + code + "\n" + "Message: " + mess;
+                        infoblock.FontSize = 18;
+                        infoblock.Text = DateTime.Now + "\n" + $"Data has loaded from the database for \"{emoType.ToString()}\".";
+                    }
+                    else
+                    {
+                        var code = response.StatusCode;
+                        var mess = await response.Content.ReadAsStringAsync();
 
-                    imgDataCollection = new ObservableCollection<ImageInfo>();
-                    ImgList.ItemsSource = imgDataCollection;
-                }
-            });
+                        infoblock.FontSize = 14;
+                        infoblock.Text = DateTime.Now + "\n" + "Request status: " + code + "\n" + "Message: " + mess;
+
+                        imgDataCollection = new ObservableCollection<ImageInfo>();
+                        ImgList.ItemsSource = imgDataCollection;
+                    }
+                });
+            }
+            catch (HttpRequestException)
+            {
+                infoblock.FontSize = 14;
+                infoblock.Text = DateTime.Now + "\n" + "Request status: 500" + "\n" + "Message: " + "Cannot connect to DB";
+            }
         }
 
         private bool CanUploadEmotion(object sender)
@@ -469,33 +509,41 @@ namespace WPFApp_Client
 
         private async void OnUploadImage(object sender)
         {
-            await _retryPolicy.ExecuteAsync(async () =>
+            try
             {
-                HttpClient httpClient = new HttpClient();
-                var response = await httpClient.GetAsync($"{apiUrl}/{idInput}");
-                if (response.IsSuccessStatusCode)
+                await _retryPolicy.ExecuteAsync(async () =>
                 {
-                    var image = await response.Content.ReadFromJsonAsync<ImageInfo>();
-                    imgDataCollection.Clear();
-                    imgDataCollection.Add(image);
+                    HttpClient httpClient = new HttpClient();
+                    var response = await httpClient.GetAsync($"{apiUrl}/{idInput}");
+                    if (response.IsSuccessStatusCode)
+                    {
+                        var image = await response.Content.ReadFromJsonAsync<ImageInfo>();
+                        imgDataCollection.Clear();
+                        imgDataCollection.Add(image);
 
-                    ImgList.ItemsSource = imgDataCollection;
+                        ImgList.ItemsSource = imgDataCollection;
 
-                    infoblock.FontSize = 18;
-                    infoblock.Text = DateTime.Now + "\n" + $"Image with id = {idInput} is loaded.";
-                }
-                else
-                {
-                    var code = response.StatusCode;
-                    var mess = await response.Content.ReadAsStringAsync();
+                        infoblock.FontSize = 18;
+                        infoblock.Text = DateTime.Now + "\n" + $"Image with id = {idInput} is loaded.";
+                    }
+                    else
+                    {
+                        var code = response.StatusCode;
+                        var mess = await response.Content.ReadAsStringAsync();
 
-                    infoblock.FontSize = 14;
-                    infoblock.Text = DateTime.Now + "\n" + "Request status: " + code + "\n" + "Message: " + mess;
+                        infoblock.FontSize = 14;
+                        infoblock.Text = DateTime.Now + "\n" + "Request status: " + code + "\n" + "Message: " + mess;
 
-                    imgDataCollection = new ObservableCollection<ImageInfo>();
-                    ImgList.ItemsSource = imgDataCollection;
-                }
-            });
+                        imgDataCollection = new ObservableCollection<ImageInfo>();
+                        ImgList.ItemsSource = imgDataCollection;
+                    }
+                });
+            }
+            catch (HttpRequestException)
+            {
+                infoblock.FontSize = 14;
+                infoblock.Text = DateTime.Now + "\n" + "Request status: 500" + "\n" + "Message: " + "Cannot connect to DB";
+            }
         }
 
         private bool CanUploadImage(object sender)
