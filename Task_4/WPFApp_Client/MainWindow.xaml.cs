@@ -147,17 +147,18 @@ namespace WPFApp_Client
         {
             string emotion = emoType.ToString();
 
-            imgDataCollection = new ObservableCollection<ImageInfo>(imgDataCollection.OrderByDescending(collection => collection.emotionsDict[emotion]));
+            if (imgDataCollection.Count > 0) 
+                imgDataCollection = new ObservableCollection<ImageInfo>(imgDataCollection.OrderByDescending(collection => collection.emotionsDict[emotion]));
             ImgList.ItemsSource = imgDataCollection;
         }
 
-        private async Task<ImageInfo?> ProcessData(string path, CancellationToken ctn)
+        private async void ProcessData(string path, CancellationToken ctn)
         {
             var byteSource = await File.ReadAllBytesAsync(path, ctn);
 
             var data = (byteSource, path);
 
-            return await _retryPolicy.ExecuteAsync(async () =>
+            await _retryPolicy.ExecuteAsync(async () =>
             {
                 var httpClient = new HttpClient();
                 httpClient.DefaultRequestHeaders.Accept.Add(new System.Net.Http.Headers.MediaTypeWithQualityHeaderValue("application/json"));
@@ -165,10 +166,20 @@ namespace WPFApp_Client
 
                 if (response.IsSuccessStatusCode)
                 {
-                    if (response.StatusCode == HttpStatusCode.NoContent)
+                    if (response.StatusCode == HttpStatusCode.Created)
+                    {
+                        imgDataCollection.Add(await response.Content.ReadFromJsonAsync<ImageInfo>());
+                    }
+                    else if (response.StatusCode == HttpStatusCode.NoContent)
                         throw new OperationCanceledException();
-                    else
-                        return await response.Content.ReadFromJsonAsync<ImageInfo>();
+                    else if (response.StatusCode == HttpStatusCode.OK)
+                    {
+                        var code = (int)response.StatusCode;
+                        var mess = await response.Content.ReadAsStringAsync();
+
+                        infoblock.FontSize = 14;
+                        infoblock.Text = DateTime.Now + "\n" + "Request status: " + code + "\n" + "Message: " + mess;
+                    }
                 }
                 else
                 {
@@ -177,13 +188,11 @@ namespace WPFApp_Client
 
                     infoblock.FontSize = 14;
                     infoblock.Text = DateTime.Now + "\n" + "Request status: " + code + "\n" + "Message: " + mess;
-
-                    return null;
                 }
             });
         }
 
-        private async void OnProcessImgs(object sender)
+        private void OnProcessImgs(object sender)
         {
             infoblock.FontSize = 18;
             infoblock.Text = DateTime.Now + "\n" + "Data processing has started.";
@@ -200,12 +209,7 @@ namespace WPFApp_Client
 
                 foreach (var path in pathList)
                 {
-                    var imgInstance = await ProcessData(path, ctn);
-    
-                    if (imgInstance != null)
-                    {
-                        imgDataCollection.Add(imgInstance);
-                    }
+                    ProcessData(path, ctn);
 
                     progressBar += pgbarStep;
                 }
