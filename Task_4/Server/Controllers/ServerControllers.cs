@@ -1,11 +1,9 @@
 using System.Collections.ObjectModel;
 using System.Net;
-using System.Threading.Tasks;
 using Contracts;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using Server.Database;
-using static System.Net.WebRequestMethods;
 
 namespace Server.Controllers
 {
