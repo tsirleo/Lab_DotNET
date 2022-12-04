@@ -133,7 +133,7 @@ namespace WPFApp_Client
                     }
                     else
                     {
-                        var code = response.StatusCode;
+                        var code = (int)response.StatusCode;
                         var mess = await response.Content.ReadAsStringAsync();
 
                         infoblock.FontSize = 14;
@@ -328,7 +328,7 @@ namespace WPFApp_Client
                     }
                     else
                     {
-                        var code = response.StatusCode;
+                        var code = (int)response.StatusCode;
                         var mess = await response.Content.ReadAsStringAsync();
 
                         infoblock.FontSize = 14;
@@ -440,7 +440,7 @@ namespace WPFApp_Client
                     }
                     else
                     {
-                        var code = response.StatusCode;
+                        var code = (int)response.StatusCode;
                         var mess = await response.Content.ReadAsStringAsync();
 
                         infoblock.FontSize = 14;
@@ -487,7 +487,7 @@ namespace WPFApp_Client
                     }
                     else
                     {
-                        var code = response.StatusCode;
+                        var code = (int)response.StatusCode;
                         var mess = await response.Content.ReadAsStringAsync();
 
                         infoblock.FontSize = 14;
@@ -537,7 +537,7 @@ namespace WPFApp_Client
                     }
                     else
                     {
-                        var code = response.StatusCode;
+                        var code = (int)response.StatusCode;
                         var mess = await response.Content.ReadAsStringAsync();
 
                         infoblock.FontSize = 14;
