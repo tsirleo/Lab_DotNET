@@ -116,7 +116,7 @@ namespace Server.Controllers
         /// </summary>
         /// <param name="emotion">Input emotion string</param>
         /// <returns>Collection of ImageInfo type</returns>
-        [HttpGet("{emotion}")]
+        [HttpGet("emotion/{emotion}")]
         public async Task<ActionResult<ObservableCollection<ImageInfo>>> GetImagesForEmotion(string emotion)
         {
             string request = $"GET /images/{emotion}";
