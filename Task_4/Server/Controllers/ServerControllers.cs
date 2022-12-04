@@ -46,7 +46,7 @@ namespace Server.Controllers
                     return Created(id.ToString(), img);
                 }
 
-                _logger.LogWarning($"[{DateTime.Now}]  Request {request} has succeeded with status {(int)HttpStatusCode.NotModified}: Image already exists in DB");
+                _logger.LogWarning($"[{DateTime.Now}]  Request {request} ended with status {(int)HttpStatusCode.NotModified}: Image already exists in DB");
                 return base.StatusCode((int)HttpStatusCode.NotModified, "Image already exists in DB");
             }
             catch (OperationCanceledException ex)
@@ -156,6 +156,12 @@ namespace Server.Controllers
             }
             catch (Error err)
             {
+                if (err.Status == HttpStatusCode.NotModified)
+                {
+                    _logger.LogWarning($"[{DateTime.Now}]  Request {request} ended with status {(int)HttpStatusCode.NotModified}: Image already exists in DB");
+                    return base.StatusCode((int)err.Status, err.Message);
+                }
+
                 _logger.LogError($"[{DateTime.Now}]  Request {request} failed with status {(int)err.Status}: {err.Message}");
                 return StatusCode((int)err.Status, err.Message);
             }
