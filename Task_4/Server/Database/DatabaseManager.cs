@@ -73,7 +73,7 @@ namespace Server.Database
                     if (resultDict != null && ContainsAllKeys(resultDict))
                     {
                         var imgInstance = new ImageInfo(Path.GetFileName(path), path, hash, resultDict);
-                        imgInstance.SetBlob(byteSource, imgInstance);
+                        imgInstance.SetBlob(byteSource);
 
                         if (imgInstance != null)
                         {
