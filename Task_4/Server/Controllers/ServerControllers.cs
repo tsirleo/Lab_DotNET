@@ -149,7 +149,7 @@ namespace Server.Controllers
 
             try
             {
-                var images = db.GetAllImages();
+                db.DeleteAllImages();
 
                 _logger.LogInformation($"[{DateTime.Now}]  Request {request} has succeeded with status {(int)HttpStatusCode.NoContent}");
                 return base.NoContent();
@@ -174,7 +174,7 @@ namespace Server.Controllers
 
             try
             {
-                var images = db.GetAllImages();
+                db.DeleteImageById(id);
 
                 _logger.LogInformation($"[{DateTime.Now}]  Request {request} has succeeded with status {(int)HttpStatusCode.NoContent}");
                 return base.NoContent();
