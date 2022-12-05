@@ -28,14 +28,14 @@ namespace Server.Controllers
         /// <param name="data">Input image byte data and string path name</param>
         /// <returns>Newly created instance of the ImageInfo type</returns>
         [HttpPost]
-        public async Task<ActionResult<ImageInfo>> PostImage((byte[], string) data, CancellationToken ctn)
+        public async Task<ActionResult<ImageInfo>> PostImage([FromBody]imgPostClass data, CancellationToken ctn)
         {
             string request = "POST /images";
             _logger.LogInformation($"[{DateTime.Now}]  {request}");
 
             try
             {
-                var img = await db.PostImage(data.Item1, data.Item2, ctn);
+                var img = await db.PostImage(data.byteSource, data.path, ctn);
                 if (img != null)
                 {
                     var id = img.imageId;
@@ -117,7 +117,7 @@ namespace Server.Controllers
         [HttpGet("emotion/{emotion}")]
         public async Task<ActionResult<ObservableCollection<ImageInfo>>> GetImagesForEmotion(string emotion)
         {
-            string request = $"GET /images/{emotion}";
+            string request = $"GET /images/emotion/{emotion}";
             _logger.LogInformation($"[{DateTime.Now}]  {request}");
 
             try

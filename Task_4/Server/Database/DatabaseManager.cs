@@ -82,9 +82,8 @@ namespace Server.Database
                             {
                                 db.imgInfo.Add(imgInstance);
                                 db.SaveChanges();
-                                var imgPost = db.imgInfo.Include(item => item.image).Last();
 
-                                return imgPost;
+                                return imgInstance;
                             }
                         }
                     }

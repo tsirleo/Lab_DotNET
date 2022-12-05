@@ -12,13 +12,15 @@ using System.ComponentModel;
 using System.Threading;
 using System.Runtime.CompilerServices;
 using System.Net;
+using System.Net.Http;
+using System.Net.Http.Headers;
+using System.Net.Http.Json;
 using Contracts;
 using Polly.Retry;
 using Polly;
-using System.Net.Http;
 using Newtonsoft.Json;
-using System.Net.Http.Json;
 using System.Security.Policy;
+using SixLabors.ImageSharp.PixelFormats;
 
 
 namespace WPFApp_Client
@@ -108,8 +110,7 @@ namespace WPFApp_Client
 
             LoadDB();
 
-            if (imgDataCollection.Count > 0) { SetFlags(false, false, true, true, true, true, true); }
-            else { SetFlags(false, false, false, false, true, false, false); }
+            SetFlags(false, false, true, true, true, true, true); 
             infoblock.Text = DateTime.Now + "\n" + "The application has started.";
         }
 
@@ -164,15 +165,17 @@ namespace WPFApp_Client
         {
             var byteSource = await File.ReadAllBytesAsync(path, ctn);
 
-            var data = (byteSource, path);
+            var data = new imgPostClass(byteSource, path);
 
             try
             {
                 await _retryPolicy.ExecuteAsync(async () =>
                 {
                     var httpClient = new HttpClient();
-                    httpClient.DefaultRequestHeaders.Accept.Add(new System.Net.Http.Headers.MediaTypeWithQualityHeaderValue("application/json"));
-                    var response = await HttpClientJsonExtensions.PostAsJsonAsync(httpClient, apiUrl, data, ctn);
+                    httpClient.BaseAddress = new Uri(apiUrl);
+                    httpClient.DefaultRequestHeaders.Accept.Clear();
+                    httpClient.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
+                    var response = await HttpClientJsonExtensions.PostAsJsonAsync(httpClient, "", data, ctn);
 
                     if (response.IsSuccessStatusCode)
                     {
@@ -457,7 +460,7 @@ namespace WPFApp_Client
 
         private bool CanDropDB(object sender)
         {
-            if (deleteFlag)
+            if (dbFlag)
                 return true;
 
             return false;
