@@ -1,22 +1,9 @@
-﻿using System.Collections.Generic;
-using Microsoft.EntityFrameworkCore;
-using System.ComponentModel.DataAnnotations.Schema;
+﻿using System.ComponentModel.DataAnnotations.Schema;
 using System.ComponentModel.DataAnnotations;
 using Newtonsoft.Json;
-using System;
 
-namespace WPFApp
+namespace Contracts
 {
-
-    public class DBContext : DbContext
-    {
-        public DbSet<ImageInfo> imgInfo { get; set; }
-        public DbSet<ImageBLOB> imgData { get; set; }
-
-        protected override void OnConfiguring(DbContextOptionsBuilder o) =>
-            o.UseSqlite("Data Source=Processed_Images.db");
-    }
-
     public class ImageInfo
     {
         [Key]
@@ -27,9 +14,9 @@ namespace WPFApp
         public ImageBLOB image { get; set; }
 
         public string emotionsJSON
-        { 
-            get { return JsonConvert.SerializeObject(emotionsDict); } 
-            set { emotionsDict = new Dictionary<string, double>(JsonConvert.DeserializeObject<Dictionary<string, double>>(value)); } 
+        {
+            get { return JsonConvert.SerializeObject(emotionsDict); }
+            set { emotionsDict = new Dictionary<string, double>(JsonConvert.DeserializeObject<Dictionary<string, double>>(value)); }
         }
 
         [NotMapped]
@@ -59,7 +46,7 @@ namespace WPFApp
         public int imageInfoId;
         public byte[] blob { get; set; }
 
-        public ImageBLOB() { }
+        public ImageBLOB() {}
 
         public ImageBLOB(byte[] source)
         {
@@ -67,4 +54,3 @@ namespace WPFApp
         }
     }
 }
-    

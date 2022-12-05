@@ -164,8 +164,9 @@ namespace WPFApp
 
                 if (resultDict != null && ContainsAllKeys(resultDict))
                 {
-                    var imgInstance = new ImageInfo(System.IO.Path.GetFileName(path), path, hash, resultDict);
-                    imgInstance.SetBlob(byteSource, imgInstance);
+                    var orderedDict = resultDict.OrderByDescending(pair => pair.Value).ToDictionary(pair => pair.Key, pair => pair.Value);
+                    var imgInstance = new ImageInfo(System.IO.Path.GetFileName(path), path, hash, orderedDict);
+                    imgInstance.SetBlob(byteSource);
                     return imgInstance;
                 }
             }
