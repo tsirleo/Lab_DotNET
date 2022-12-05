@@ -40,6 +40,19 @@ cd ../Task_4/WPFApp_Client
 ```
 dotnet run
 ```
+### Логгирование:
+Сервер поддерживает возможность логгирования 2 способами:
+
+1. По умолчанию логгирование в консоль.
+2. Логгирование в файл ***http_logger.log***. Для переключения режима необходимо в [файле Program.cs](https://github.com/tsirleo/Lab_DotNET/blob/master/Task_4/Server/Program.cs):
+    - закомментировать строку:
+        ```
+        builder.Logging.AddConsole(); // if you want server to log in console
+        ```
+    - снять комментарий со строки:
+       ```
+       //builder.Logging.AddFile(Path.Combine(Directory.GetCurrentDirectory(), "http_logger.log")); // if you want server to log in file
+       ```
 ### Сервер и спецификация swagger:
 - Клиент с сервером общаются по защищенному протоколу ***https***. Сервер по умолчанию запускается на порту ***5072*** при использовании ***http***, и на порту ***7173*** при использоовании ***https***. Если необходимо использовать другой порт - требуется внести изменения в [файл](https://github.com/tsirleo/Lab_DotNET/blob/master/Task_4/Server/Properties/launchSettings.json), а также в [файле](https://github.com/tsirleo/Lab_DotNET/blob/master/Task_4/WPFApp_Client/MainWindow.xaml.cs) клиента указать этот другой порт в переменной ***apiUrl***.
 - К серверу добавлена поддержка OpenAPI - по адресу "https://localhost:7173/swagger/v1/swagger.json" находится спецификация .json. Api можно найти по адресу - "https://localhost:7173/swagger/index.html#/ServerControllers".
