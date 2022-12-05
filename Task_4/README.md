@@ -40,9 +40,10 @@ cd ../Task_4/WPFApp_Client
 ```
 dotnet run
 ```
-#### Сервер и спецификация swagger:
+### Сервер и спецификация swagger:
 - Клиент с сервером общаются по защищенному протоколу ***https***. Сервер по умолчанию запускается на порту ***5072*** при использовании ***http***, и на порту ***7173*** при использоовании ***https***. Если необходимо использовать другой порт - требуется внести изменения в [файл](https://github.com/tsirleo/Lab_DotNET/blob/master/Task_4/Server/Properties/launchSettings.json), а также в [файле](https://github.com/tsirleo/Lab_DotNET/blob/master/Task_4/WPFApp_Client/MainWindow.xaml.cs) клиента указать этот другой порт в переменной ***apiUrl***.
 - К серверу добавлена поддержка OpenAPI - по адресу "https://localhost:7173/swagger/v1/swagger.json" находится спецификация .json. Api можно найти по адресу - "https://localhost:7173/swagger/index.html#/ServerControllers".
+
 ![image info](./api.jpg)
 
 ## **Условие:** 
