@@ -28,6 +28,7 @@ namespace Server.Controllers
         /// <param name="data">Input image byte data and string path name</param>
         /// <returns>Newly created instance of the ImageInfo type</returns>
         [HttpPost]
+        [ProducesResponseType(StatusCodes.Status201Created)]
         public async Task<ActionResult<ImageInfo>> PostImage([FromBody]imgPostClass data, CancellationToken ctn)
         {
             string request = "POST /images";
@@ -140,6 +141,7 @@ namespace Server.Controllers
         /// <param></param>
         /// <returns></returns>
         [HttpDelete]
+        [ProducesResponseType(StatusCodes.Status204NoContent)]
         public async Task<ActionResult> DeleteImages()
         {
             string request = "DELETE /images";
@@ -165,6 +167,7 @@ namespace Server.Controllers
         /// <param name="id">Input image ID</param>
         /// <returns></returns>
         [HttpDelete("{id}")]
+        [ProducesResponseType(StatusCodes.Status204NoContent)]
         public async Task<ActionResult> DeleteImage(int id)
         {
             string request = $"DELETE /images/{id}";
