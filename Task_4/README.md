@@ -30,7 +30,7 @@ dotnet ef database update
 ```
 **6. Запустить сервер:**
 ```
-dotnet run
+dotnet run --launch-profile "https"
 ```
 **7. Перейти в директорию Task_4/WPFApp_Client:**
 ```
