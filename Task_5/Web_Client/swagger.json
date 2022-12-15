@@ -1,0 +1,258 @@
+{
+  "x-generator": "NSwag v13.18.0.0 (NJsonSchema v10.8.0.0 (Newtonsoft.Json v13.0.0.0))",
+  "swagger": "2.0",
+  "info": {
+    "title": "TsirleoService",
+    "description": "Service for image processing and storage",
+    "termsOfService": "None",
+    "version": "v1"
+  },
+  "host": "localhost:7173",
+  "schemes": [
+    "https"
+  ],
+  "paths": {
+    "/images": {
+      "post": {
+        "tags": [
+          "ServerControllers"
+        ],
+        "summary": "POST image with given image path and byteSource",
+        "operationId": "ServerControllers_PostImage",
+        "consumes": [
+          "application/json",
+          "text/json",
+          "application/*+json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "name": "data",
+            "in": "body",
+            "required": true,
+            "description": "Input image byte data and string path name",
+            "schema": {
+              "$ref": "#/definitions/ImgPostClass"
+            },
+            "x-nullable": false
+          }
+        ],
+        "responses": {
+          "201": {
+            "x-nullable": false,
+            "description": "Newly created instance of the ImageInfo type",
+            "schema": {
+              "$ref": "#/definitions/ImageInfo"
+            }
+          }
+        }
+      },
+      "get": {
+        "tags": [
+          "ServerControllers"
+        ],
+        "summary": "GET all images",
+        "operationId": "ServerControllers_GetImages",
+        "produces": [
+          "application/json"
+        ],
+        "responses": {
+          "200": {
+            "x-nullable": false,
+            "description": "Collection of ImageInfo type",
+            "schema": {
+              "type": "array",
+              "items": {
+                "$ref": "#/definitions/ImageInfo"
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "ServerControllers"
+        ],
+        "summary": "DELETE all images from DB",
+        "operationId": "ServerControllers_DeleteImages",
+        "responses": {
+          "204": {
+            "description": ""
+          }
+        }
+      }
+    },
+    "/images/{id}": {
+      "get": {
+        "tags": [
+          "ServerControllers"
+        ],
+        "summary": "GET image for a given ID",
+        "operationId": "ServerControllers_GetImage",
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "type": "integer",
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "description": "Input image ID",
+            "format": "int32",
+            "x-nullable": false
+          }
+        ],
+        "responses": {
+          "200": {
+            "x-nullable": false,
+            "description": "ImageInfo type object",
+            "schema": {
+              "$ref": "#/definitions/ImageInfo"
+            }
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "ServerControllers"
+        ],
+        "summary": "DELETE image for a given ID from DB",
+        "operationId": "ServerControllers_DeleteImage",
+        "parameters": [
+          {
+            "type": "integer",
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "description": "Input image ID",
+            "format": "int32",
+            "x-nullable": false
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": ""
+          }
+        }
+      }
+    },
+    "/images/emotion/{emotion}": {
+      "get": {
+        "tags": [
+          "ServerControllers"
+        ],
+        "summary": "GET images, where given emotion is most likely",
+        "operationId": "ServerControllers_GetImagesForEmotion",
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "type": "string",
+            "name": "emotion",
+            "in": "path",
+            "required": true,
+            "description": "Input emotion string",
+            "x-nullable": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "x-nullable": false,
+            "description": "Collection of ImageInfo type",
+            "schema": {
+              "type": "array",
+              "items": {
+                "$ref": "#/definitions/ImageInfo"
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "definitions": {
+    "ImageInfo": {
+      "type": "object",
+      "required": [
+        "imageId",
+        "fileName",
+        "imgPath",
+        "hashCode",
+        "image",
+        "emotionsJSON",
+        "emotionsDict"
+      ],
+      "properties": {
+        "imageId": {
+          "type": "integer",
+          "format": "int32"
+        },
+        "fileName": {
+          "type": "string"
+        },
+        "imgPath": {
+          "type": "string"
+        },
+        "hashCode": {
+          "type": "string",
+          "format": "byte"
+        },
+        "image": {
+          "$ref": "#/definitions/ImageBLOB"
+        },
+        "emotionsJSON": {
+          "type": "string"
+        },
+        "emotionsDict": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "number",
+            "format": "double"
+          }
+        }
+      }
+    },
+    "ImageBLOB": {
+      "type": "object",
+      "required": [
+        "imageInfoId",
+        "blobId",
+        "blob"
+      ],
+      "properties": {
+        "imageInfoId": {
+          "type": "integer",
+          "format": "int32"
+        },
+        "blobId": {
+          "type": "integer",
+          "format": "int32"
+        },
+        "blob": {
+          "type": "string",
+          "format": "byte"
+        }
+      }
+    },
+    "ImgPostClass": {
+      "type": "object",
+      "required": [
+        "byteSource",
+        "path"
+      ],
+      "properties": {
+        "byteSource": {
+          "type": "string",
+          "format": "byte"
+        },
+        "path": {
+          "type": "string"
+        }
+      }
+    }
+  }
+}
