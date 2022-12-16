@@ -140,5 +140,7 @@ $RECYCLE.BIN/
 [Mm]igrations/
 [Pp]roperties/
 *.db
+*.db-shm
+*.db-wal
 
 _NCrunch*
